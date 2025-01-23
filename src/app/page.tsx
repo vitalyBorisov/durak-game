@@ -1,95 +1,85 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client'
 
-export default function Home() {
+import { observer } from 'mobx-react-lite'
+import { useEffect } from 'react'
+import './page.module.css'
+import HisCards from '@/components/HisCards'
+import BattleField from '@/components/BattleField'
+import MyCards from '@/components/MyCards'
+import Deck from '@/components/Deck'
+import MyActions from '@/components/MyActions'
+import GameOver from '@/components/GameOver'
+import { battleField, hisCards, myCards, game } from '@/store'
+import { Card } from '@/types'
+
+const Home = observer(() => {
+  const startGame = () => {
+    const { firstHisCards, firstMyCards } = game.startGame()
+    hisCards.addCards(firstHisCards)
+    myCards.addCards(firstMyCards)
+  }
+
+  const hisAction = () => {
+    if (!game.isMyStep) {
+      const battleFieldCards = [
+        ...battleField.cards.his,
+        ...battleField.cards.my,
+      ]
+
+      const hisJuniorCard = hisCards.defineCardForAction(battleFieldCards)
+
+      if (hisJuniorCard) {
+        battleField.addHisCard(hisJuniorCard)
+      } else {
+        battleField.clearBattleField(myCards, hisCards)
+      }
+    }
+  }
+
+  useEffect(startGame, [])
+
+  useEffect(hisAction, [game.isMyStep])
+
+  const clickMyCard = (card: Card) => {
+    if (game.isMyStep) {
+      const myStepCard = myCards.checkMyStep(card, [
+        ...battleField.cards.my,
+        ...battleField.cards.his,
+      ])
+      if (myStepCard) {
+        battleField.addMyCard(myStepCard)
+      }
+    }
+  }
+
+  const getCard = () => {
+    myCards.addCards([...battleField.cards.my, ...battleField.cards.his])
+    game.toggleStep()
+    game.setIsGetCard(true)
+    battleField.clearBattleField(myCards, hisCards)
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    <div className="app">
+      <HisCards cards={hisCards.cards} />
+      <BattleField cards={battleField.cards} />
+      <MyCards cards={myCards.cards} onStep={clickMyCard} />
+      <Deck trump={game.trumpCard} cardBallance={game.deckCards.length} />
+      <MyActions
+        isMyAttack={game.isMyAttack}
+        onRepulsed={() => battleField.clearBattleField(myCards, hisCards)}
+        onGetCard={getCard}
+      />
+      <GameOver
+        isShow={
+          !game.deckCards.length &&
+          (!myCards.cards.length || !hisCards.cards.length)
+        }
+        isMyWin={!myCards.cards.length}
+        onRestartGame={startGame}
+      />
     </div>
-  );
-}
+  )
+})
+
+export default Home
