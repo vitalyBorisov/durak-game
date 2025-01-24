@@ -1,19 +1,20 @@
 import { FC } from 'react'
-import { Card } from '@/types'
+import { ICard } from '@/types'
 import CardComponent from './CardComponent'
+import { Flex } from 'antd'
 
 type MyCardsProps = {
-  cards: Array<Card>
-  onStep: (card: Card) => void
+  cards: Array<ICard>
+  onStep: (card: ICard) => void
 }
 
 const MyCards: FC<MyCardsProps> = ({ cards, onStep }) => {
   return (
-    <div className="playerCards">
+    <Flex justify="center" gap="small">
       {cards.map((card) => (
         <CardComponent card={card} key={card.id} onClick={() => onStep(card)} />
       ))}
-    </div>
+    </Flex>
   )
 }
 

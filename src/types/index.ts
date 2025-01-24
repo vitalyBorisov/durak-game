@@ -5,7 +5,7 @@ export enum TypeCard {
   kresti = 'kresti',
 }
 
-export interface Card {
+export interface ICard {
   id: number
   rank: number
   type: TypeCard
@@ -13,6 +13,6 @@ export interface Card {
 }
 
 export interface CoupleCard {
-  my: Card[]
-  his: Card[]
+  my: ICard[]
+  his: ICard[]
 }

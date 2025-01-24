@@ -1,16 +1,22 @@
 import { FC } from 'react'
-import { Card } from '@/types'
-// import Image from 'next/image'
+import Image from 'next/image'
+import { ICard } from '@/types'
 
 type TCardComponentProps = {
-  card: Card
+  card: ICard
   onClick?: () => void
 }
 
 const CardComponent: FC<TCardComponentProps> = ({ card, onClick }) => {
   return (
     <div className="card" onClick={onClick}>
-      <img src={card.img} alt={`${card.id}`} width={80} />
+      <Image
+        src={card.img}
+        alt={`${card.id}`}
+        width={71}
+        height={96}
+        priority
+      />
     </div>
   )
 }

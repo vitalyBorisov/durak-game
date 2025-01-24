@@ -1,5 +1,5 @@
 import { action, makeObservable, observable } from 'mobx'
-import { Card, CoupleCard } from '@/types'
+import { ICard, CoupleCard } from '@/types'
 import { game } from '.'
 import { MyCards } from './MyCards'
 import { HisCards } from './HisCards'
@@ -18,12 +18,12 @@ class BattleField {
     })
   }
 
-  addMyCard = (card: Card) => {
+  addMyCard = (card: ICard) => {
     this.cards.my.push(card)
     game.toggleStep()
   }
 
-  addHisCard = (card: Card) => {
+  addHisCard = (card: ICard) => {
     this.cards.his.push(card)
     game.toggleStep()
   }

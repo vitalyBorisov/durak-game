@@ -1,5 +1,5 @@
 import { action, makeObservable, observable } from 'mobx'
-import { Card, TypeCard } from '@/types'
+import { ICard, TypeCard } from '@/types'
 import { cards as allCards } from '@/cards'
 import { MyCards } from './MyCards'
 import { HisCards } from './HisCards'
@@ -9,16 +9,19 @@ class Game {
   isMyStep: boolean = false
   isGetCard: boolean = false
   isMyAttack: boolean = false
-  deckCards: Card[] = []
-  attackCard: Card = allCards[0]
+  deckCards: ICard[] = []
+  attackCard: ICard = allCards[0]
 
   constructor() {
     makeObservable(this, {
       isMyStep: observable,
-      deckCards: observable,
-      isMyAttack: observable,
-      attackCard: observable,
       isGetCard: observable,
+      isMyAttack: observable,
+      deckCards: observable,
+      attackCard: observable,
+      toggleStep: action,
+      toggleAttack: action,
+      startGame: action,
       reduceCards: action,
     })
   }
@@ -35,11 +38,11 @@ class Game {
     this.isGetCard = isGetCard
   }
 
-  setAttackCard(card: Card) {
+  setAttackCard(card: ICard) {
     this.attackCard = card
   }
 
-  defineStep(myCards: Card[], hisCards: Card[]) {
+  defineStep(myCards: ICard[], hisCards: ICard[]) {
     const myJuniorTrumpRank = this.defineJuniorTrumpCard(myCards)
     const hisJuniorTrumpRank = this.defineJuniorTrumpCard(hisCards)
 
@@ -75,7 +78,7 @@ class Game {
     his.addCards(this.reduceCards(hisNeed > 0 ? hisNeed : 0))
   }
 
-  defineJuniorTrumpCard(cards: Card[]) {
+  defineJuniorTrumpCard(cards: ICard[]) {
     const trumpRanks = cards
       .filter((card) => card.type === this.trumpCard)
       .map((card) => card.rank)
@@ -86,7 +89,7 @@ class Game {
     return 0
   }
 
-  reduceCards(countCards: number): Card[] {
+  reduceCards(countCards: number): ICard[] {
     return this.deckCards.splice(0, countCards)
   }
 }

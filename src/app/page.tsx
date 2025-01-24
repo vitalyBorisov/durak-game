@@ -1,7 +1,8 @@
 'use client'
 
 import { observer } from 'mobx-react-lite'
-import { useEffect } from 'react'
+import { FC, useEffect } from 'react'
+import { Flex, message } from 'antd'
 import './page.module.css'
 import HisCards from '@/components/HisCards'
 import BattleField from '@/components/BattleField'
@@ -10,9 +11,11 @@ import Deck from '@/components/Deck'
 import MyActions from '@/components/MyActions'
 import GameOver from '@/components/GameOver'
 import { battleField, hisCards, myCards, game } from '@/store'
-import { Card } from '@/types'
+import { ICard } from '@/types'
 
-const Home = observer(() => {
+const Home: FC = observer(() => {
+  const [messageApi, contextHolder] = message.useMessage()
+
   const startGame = () => {
     const { firstHisCards, firstMyCards } = game.startGame()
     hisCards.addCards(firstHisCards)
@@ -40,7 +43,7 @@ const Home = observer(() => {
 
   useEffect(hisAction, [game.isMyStep])
 
-  const clickMyCard = (card: Card) => {
+  const clickMyCard = (card: ICard) => {
     if (game.isMyStep) {
       const myStepCard = myCards.checkMyStep(card, [
         ...battleField.cards.my,
@@ -48,6 +51,10 @@ const Home = observer(() => {
       ])
       if (myStepCard) {
         battleField.addMyCard(myStepCard)
+      } else if (game.isMyAttack) {
+        messageApi.warning('Такой карты нет на поле битвы')
+      } else {
+        messageApi.warning('У него карта сильнее')
       }
     }
   }
@@ -60,7 +67,14 @@ const Home = observer(() => {
   }
 
   return (
-    <div className="app">
+    <Flex
+      gap="middle"
+      vertical
+      justify="space-around"
+      align="center"
+      className="app"
+    >
+      {contextHolder}
       <HisCards cards={hisCards.cards} />
       <BattleField cards={battleField.cards} />
       <MyCards cards={myCards.cards} onStep={clickMyCard} />
@@ -78,7 +92,7 @@ const Home = observer(() => {
         isMyWin={!myCards.cards.length}
         onRestartGame={startGame}
       />
-    </div>
+    </Flex>
   )
 })
 

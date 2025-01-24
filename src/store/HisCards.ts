@@ -1,24 +1,22 @@
-import { Card } from '@/types'
-import { makeObservable, observable } from 'mobx'
+import { ICard } from '@/types'
+import { makeObservable } from 'mobx'
 import PlayerCards from './PlayerCards'
 import { game } from '.'
 
 export class HisCards extends PlayerCards {
-  cards: Array<Card> = []
-
   constructor() {
     super()
-    makeObservable(this, { cards: observable })
+    makeObservable(this)
   }
 
-  defineJuniorExistCard(battleFieldCards: Card[]) {
+  defineJuniorExistCard(battleFieldCards: ICard[]) {
     const existRankCards = this.cards.filter(
       (card) => !!battleFieldCards.find((c) => c.rank === card.rank),
     )
 
     return existRankCards.length ? this.defineJuniorCard(existRankCards) : null
   }
-  defineJuniorCard(cards: Card[]): Card {
+  defineJuniorCard(cards: ICard[]): ICard {
     const juniorCard = cards.reduce((acc, curCard) =>
       acc.rank < curCard.rank ? acc : curCard,
     )
@@ -28,7 +26,7 @@ export class HisCards extends PlayerCards {
     return juniorCard
   }
 
-  defineCardForAction(battleFieldCards: Card[]) {
+  defineCardForAction(battleFieldCards: ICard[]) {
     if (game.isMyAttack) {
       return this.defineCardForDefense(game.attackCard, battleFieldCards)
     }
@@ -36,7 +34,7 @@ export class HisCards extends PlayerCards {
     return this.defineCardForAttack(battleFieldCards)
   }
 
-  defineCardForAttack = (battleFieldCards: Card[]) => {
+  defineCardForAttack = (battleFieldCards: ICard[]) => {
     if (this.cards.length) {
       let cardForAttack = null
       if (!battleFieldCards.length) {
@@ -64,7 +62,7 @@ export class HisCards extends PlayerCards {
     }
   }
 
-  defineCardForDefense(attackCard: Card | null, battleFieldCards: Card[]) {
+  defineCardForDefense(attackCard: ICard | null, battleFieldCards: ICard[]) {
     if (attackCard) {
       const higherCards = this.cards.filter(
         (card) =>

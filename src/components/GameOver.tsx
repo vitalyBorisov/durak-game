@@ -1,8 +1,12 @@
+import { Button, Flex, Typography } from 'antd'
+
 interface IGameOverProps {
   isShow: boolean
   isMyWin: boolean
   onRestartGame: () => void
 }
+
+const { Text } = Typography
 
 const GameOver: React.FC<IGameOverProps> = ({
   isShow,
@@ -10,14 +14,25 @@ const GameOver: React.FC<IGameOverProps> = ({
   onRestartGame,
 }) => {
   return isShow ? (
-    <div className="game-over">
-      <b className={isMyWin ? 'win' : 'lose'}>
+    <Flex
+      className="game-over"
+      justify="center"
+      align="center"
+      gap={30}
+      vertical
+    >
+      <Text type={isMyWin ? 'success' : 'danger'} strong>
         {isMyWin ? 'Поздравляю! Ты выиграл!' : 'Увы! Ты проиграл!'}
-      </b>
-      <button className="game-over-btn" onClick={onRestartGame}>
+      </Text>
+      <Button
+        color="green"
+        variant="filled"
+        className="game-over-btn"
+        onClick={onRestartGame}
+      >
         Играть еще раз?
-      </button>
-    </div>
+      </Button>
+    </Flex>
   ) : null
 }
 

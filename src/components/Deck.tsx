@@ -1,10 +1,13 @@
 import { FC } from 'react'
 import { TypeCard } from '@/types'
+import { ConfigProvider, Flex, Typography } from 'antd'
 
 type DeckProps = {
   trump: TypeCard
   cardBallance: number
 }
+
+const { Text } = Typography
 
 const Deck: FC<DeckProps> = ({ trump, cardBallance }) => {
   const trumps = {
@@ -15,13 +18,21 @@ const Deck: FC<DeckProps> = ({ trump, cardBallance }) => {
   }
 
   return (
-    <div className="deckInfo">
-      <div
-        className={trumps[trump].color}
-        dangerouslySetInnerHTML={trumps[trump].code}
-      ></div>
-      <div>{'Остаток в колоде: ' + cardBallance}</div>
-    </div>
+    <ConfigProvider
+      theme={{
+        token: {
+          colorText: '#fff',
+        },
+      }}
+    >
+      <Flex align="center" gap="small">
+        <div
+          className={trumps[trump].color}
+          dangerouslySetInnerHTML={trumps[trump].code}
+        ></div>
+        <Text>{'Остаток в колоде: ' + cardBallance}</Text>
+      </Flex>
+    </ConfigProvider>
   )
 }
 

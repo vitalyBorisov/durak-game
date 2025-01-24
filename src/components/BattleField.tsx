@@ -1,6 +1,7 @@
 import { FC } from 'react'
 import { CoupleCard } from '@/types'
 import CardComponent from './CardComponent'
+import { Flex } from 'antd'
 
 type BattleFieldProps = {
   cards: CoupleCard
@@ -9,16 +10,16 @@ type BattleFieldProps = {
 const BattleField: FC<BattleFieldProps> = ({ cards }) => {
   return (
     <div>
-      <div className="battleField">
+      <Flex>
         {cards.his.map((card) => (
           <CardComponent card={card} key={card.id} />
         ))}
-      </div>
-      <div className="battleField">
+      </Flex>
+      <Flex>
         {cards.my.map((card) => (
           <CardComponent card={card} key={card.id} />
         ))}
-      </div>
+      </Flex>
     </div>
   )
 }

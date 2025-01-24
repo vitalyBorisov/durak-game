@@ -1,3 +1,4 @@
+import { Button, ConfigProvider } from 'antd'
 import { FC } from 'react'
 
 type MyActionsProps = {
@@ -10,16 +11,28 @@ const MyActions: FC<MyActionsProps> = ({
   onRepulsed,
   onGetCard,
 }) => {
-  const classes = ['btn-actions']
-  if (!isMyAttack) classes.push('red-btn')
-
   return (
-    <button
-      className={classes.join(' ')}
-      onClick={isMyAttack ? onRepulsed : onGetCard}
+    <ConfigProvider
+      theme={{
+        token: {
+          borderRadius: 360,
+          controlHeight: 50,
+        },
+        components: {
+          Button: { fontWeight: 700 },
+        },
+      }}
     >
-      {isMyAttack ? 'Бито' : 'Беру'}
-    </button>
+      <Button
+        color={isMyAttack ? 'primary' : 'danger'}
+        variant="solid"
+        className="btn-actions"
+        onClick={isMyAttack ? onRepulsed : onGetCard}
+        style={{ position: 'fixed' }}
+      >
+        {isMyAttack ? 'Бито' : 'Беру'}
+      </Button>
+    </ConfigProvider>
   )
 }
 
