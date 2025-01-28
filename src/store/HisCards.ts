@@ -1,12 +1,21 @@
 import { ICard } from '@/types'
-import { makeObservable } from 'mobx'
+import { action, makeObservable } from 'mobx'
 import PlayerCards from './PlayerCards'
-import { game } from '.'
+import RootStore from '.'
 
-export class HisCards extends PlayerCards {
-  constructor() {
+export default class HisCards extends PlayerCards {
+  rootStore: RootStore
+
+  constructor(rootStore: RootStore) {
     super()
-    makeObservable(this)
+    makeObservable(this, {
+      defineJuniorExistCard: action,
+      defineJuniorCard: action,
+      defineCardForAction: action,
+      defineCardForAttack: action,
+      defineCardForDefense: action,
+    })
+    this.rootStore = rootStore
   }
 
   defineJuniorExistCard(battleFieldCards: ICard[]) {
@@ -26,9 +35,13 @@ export class HisCards extends PlayerCards {
     return juniorCard
   }
 
-  defineCardForAction(battleFieldCards: ICard[]) {
-    if (game.isMyAttack) {
-      return this.defineCardForDefense(game.attackCard, battleFieldCards)
+  defineCardForAction() {
+    const battleFieldCards = [
+      ...this.rootStore.battleFieldStore.cards.his,
+      ...this.rootStore.battleFieldStore.cards.my,
+    ]
+    if (this.rootStore.gameStore.isMyAttack) {
+      return this.defineCardForDefense(battleFieldCards)
     }
 
     return this.defineCardForAttack(battleFieldCards)
@@ -39,10 +52,10 @@ export class HisCards extends PlayerCards {
       let cardForAttack = null
       if (!battleFieldCards.length) {
         const trumpCards = this.cards.filter(
-          (card) => card.type === game.trumpCard,
+          (card) => card.type === this.rootStore.gameStore.trumpCard,
         )
         const notTrumpCards = this.cards.filter(
-          (card) => card.type !== game.trumpCard,
+          (card) => card.type !== this.rootStore.gameStore.trumpCard,
         )
 
         if (notTrumpCards.length) {
@@ -50,44 +63,44 @@ export class HisCards extends PlayerCards {
         } else {
           cardForAttack = this.defineJuniorCard(trumpCards)
         }
-        game.setAttackCard(cardForAttack)
+        this.rootStore.gameStore.setAttackCard(cardForAttack)
         return cardForAttack
       }
 
       cardForAttack = this.defineJuniorExistCard(battleFieldCards)
       if (cardForAttack) {
-        game.setAttackCard(cardForAttack)
+        this.rootStore.gameStore.setAttackCard(cardForAttack)
       }
       return cardForAttack
     }
   }
 
-  defineCardForDefense(attackCard: ICard | null, battleFieldCards: ICard[]) {
+  defineCardForDefense(battleFieldCards: ICard[]) {
+    const attackCard = this.rootStore.gameStore.attackCard
+
     if (attackCard) {
       const higherCards = this.cards.filter(
-        (card) =>
-          card.type === attackCard?.type && card.rank > attackCard?.rank,
+        (card) => card.type === attackCard.type && card.rank > attackCard.rank,
       )
 
       const trumpCards = this.cards.filter(
-        (card) => card.type === game.trumpCard,
+        (card) => card.type === this.rootStore.gameStore.trumpCard,
       )
 
       if (higherCards.length) {
         return this.defineJuniorCard(higherCards)
       }
 
-      if (attackCard.type !== game.trumpCard && trumpCards.length) {
+      if (
+        attackCard.type !== this.rootStore.gameStore.trumpCard &&
+        trumpCards.length
+      ) {
         return this.defineJuniorCard(trumpCards)
       }
 
       this.addCards(battleFieldCards)
-      game.toggleStep()
-      game.setIsGetCard(true)
+      this.rootStore.gameStore.toggleStep()
+      this.rootStore.gameStore.setIsGetCard(true)
     }
   }
 }
-
-const myCards = new HisCards()
-
-export default myCards

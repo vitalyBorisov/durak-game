@@ -1,47 +1,44 @@
 import { action, makeObservable, observable } from 'mobx'
 import { ICard, CoupleCard } from '@/types'
-import { game } from '.'
-import { MyCards } from './MyCards'
-import { HisCards } from './HisCards'
+import RootStore from '.'
 
-class BattleField {
+export default class BattleField {
   cards: CoupleCard = {
     my: [],
     his: [],
   }
+  rootStore: RootStore
 
-  constructor() {
+  constructor(rootStore: RootStore) {
     makeObservable(this, {
       cards: observable,
       addMyCard: action,
       addHisCard: action,
+      clearBattleField: action,
     })
+    this.rootStore = rootStore
   }
 
   addMyCard = (card: ICard) => {
     this.cards.my.push(card)
-    game.toggleStep()
+    this.rootStore.gameStore.toggleStep()
   }
 
   addHisCard = (card: ICard) => {
     this.cards.his.push(card)
-    game.toggleStep()
+    this.rootStore.gameStore.toggleStep()
   }
 
-  clearBattleField(myCards: MyCards, hisCards: HisCards) {
+  clearBattleField() {
     this.cards.my = []
     this.cards.his = []
-    game.addPlayersCards(myCards, hisCards)
+    this.rootStore.gameStore.addPlayersCards()
 
-    if (!game.isGetCard) {
-      game.toggleStep()
-      game.toggleAttack()
+    if (!this.rootStore.gameStore.isGetCard) {
+      this.rootStore.gameStore.toggleStep()
+      this.rootStore.gameStore.toggleAttack()
     } else {
-      game.setIsGetCard(false)
+      this.rootStore.gameStore.setIsGetCard(false)
     }
   }
 }
-
-const battleField = new BattleField()
-
-export default battleField

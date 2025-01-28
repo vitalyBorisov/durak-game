@@ -10,60 +10,57 @@ import MyCards from '@/components/MyCards'
 import Deck from '@/components/Deck'
 import MyActions from '@/components/MyActions'
 import GameOver from '@/components/GameOver'
-import { battleField, hisCards, myCards, game } from '@/store'
 import { ICard } from '@/types'
+import { useStore } from '@/hooks/useStore'
 
 const Home: FC = observer(() => {
   const [messageApi, contextHolder] = message.useMessage()
+  const { gameStore, hisCardsStore, myCardsStore, battleFieldStore } =
+    useStore()
 
   const startGame = () => {
-    const { firstHisCards, firstMyCards } = game.startGame()
-    hisCards.addCards(firstHisCards)
-    myCards.addCards(firstMyCards)
+    gameStore.startGame()
   }
 
   const hisAction = () => {
-    if (!game.isMyStep) {
-      const battleFieldCards = [
-        ...battleField.cards.his,
-        ...battleField.cards.my,
-      ]
-
-      const hisJuniorCard = hisCards.defineCardForAction(battleFieldCards)
+    if (!gameStore.isMyStep) {
+      const hisJuniorCard = hisCardsStore.defineCardForAction()
 
       if (hisJuniorCard) {
-        battleField.addHisCard(hisJuniorCard)
+        battleFieldStore.addHisCard(hisJuniorCard)
       } else {
-        battleField.clearBattleField(myCards, hisCards)
+        battleFieldStore.clearBattleField()
       }
     }
   }
 
   useEffect(startGame, [])
 
-  useEffect(hisAction, [game.isMyStep])
+  useEffect(hisAction, [gameStore.isMyStep])
 
   const clickMyCard = (card: ICard) => {
-    if (game.isMyStep) {
-      const myStepCard = myCards.checkMyStep(card, [
-        ...battleField.cards.my,
-        ...battleField.cards.his,
-      ])
+    if (gameStore.isMyStep) {
+      const myStepCard = myCardsStore.checkMyStep(card)
       if (myStepCard) {
-        battleField.addMyCard(myStepCard)
-      } else if (game.isMyAttack) {
-        messageApi.warning('Такой карты нет на поле битвы')
+        battleFieldStore.addMyCard(myStepCard)
       } else {
-        messageApi.warning('У него карта сильнее')
+        if (gameStore.isMyAttack) {
+          messageApi.warning('Такой карты нет на поле битвы')
+        } else {
+          messageApi.warning('У него карта сильнее')
+        }
       }
     }
   }
 
   const getCard = () => {
-    myCards.addCards([...battleField.cards.my, ...battleField.cards.his])
-    game.toggleStep()
-    game.setIsGetCard(true)
-    battleField.clearBattleField(myCards, hisCards)
+    myCardsStore.addCards([
+      ...battleFieldStore.cards.my,
+      ...battleFieldStore.cards.his,
+    ])
+    gameStore.toggleStep()
+    gameStore.setIsGetCard(true)
+    battleFieldStore.clearBattleField()
   }
 
   return (
@@ -75,21 +72,24 @@ const Home: FC = observer(() => {
       className="app"
     >
       {contextHolder}
-      <HisCards cards={hisCards.cards} />
-      <BattleField cards={battleField.cards} />
-      <MyCards cards={myCards.cards} onStep={clickMyCard} />
-      <Deck trump={game.trumpCard} cardBallance={game.deckCards.length} />
+      <HisCards cards={hisCardsStore.cards} />
+      <BattleField cards={battleFieldStore.cards} />
+      <MyCards cards={myCardsStore.cards} onStep={clickMyCard} />
+      <Deck
+        trump={gameStore.trumpCard}
+        cardBallance={gameStore.deckCards.length}
+      />
       <MyActions
-        isMyAttack={game.isMyAttack}
-        onRepulsed={() => battleField.clearBattleField(myCards, hisCards)}
+        isMyAttack={gameStore.isMyAttack}
+        onRepulsed={() => battleFieldStore.clearBattleField()}
         onGetCard={getCard}
       />
       <GameOver
         isShow={
-          !game.deckCards.length &&
-          (!myCards.cards.length || !hisCards.cards.length)
+          !gameStore.deckCards.length &&
+          (!myCardsStore.cards.length || !hisCardsStore.cards.length)
         }
-        isMyWin={!myCards.cards.length}
+        isMyWin={!myCardsStore.cards.length}
         onRestartGame={startGame}
       />
     </Flex>

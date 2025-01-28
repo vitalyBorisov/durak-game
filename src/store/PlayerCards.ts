@@ -1,7 +1,7 @@
 import { ICard } from '@/types'
 import { action, makeObservable, observable } from 'mobx'
 
-class PlayerCards {
+export default class PlayerCards {
   cards: Array<ICard> = []
 
   constructor() {
@@ -25,5 +25,3 @@ class PlayerCards {
     this.cards = []
   }
 }
-
-export default PlayerCards
