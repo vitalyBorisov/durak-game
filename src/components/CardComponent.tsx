@@ -13,8 +13,8 @@ const CardComponent: FC<TCardComponentProps> = ({ card, onClick }) => {
       <Image
         src={card.img}
         alt={`${card.id}`}
-        width={71}
-        height={96}
+        width={80}
+        height={110}
         priority
       />
     </div>

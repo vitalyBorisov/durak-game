@@ -9,7 +9,7 @@ type HisCardsProps = {
 
 const HisCards: FC<HisCardsProps> = ({ cards }) => {
   return (
-    <Flex justify="center" gap="small">
+    <Flex justify="center" gap="small" wrap>
       {cards.map((card) => (
         <CardComponent card={card} key={card.id} />
       ))}
